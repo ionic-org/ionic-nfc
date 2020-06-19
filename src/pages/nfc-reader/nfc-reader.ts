@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { NFCProvider } from '../../providers/nfc/nfc';
 import { NdefEvent } from '@ionic-native/nfc';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'page-nfc-reader',
@@ -13,13 +14,14 @@ export class NFCReaderPage {
 
   tagEvent: any;
   tagId: string;
+  obser:  Subscription;
 
   constructor(
     private platform: Platform,
-    public navCtrl: NavController, 
+    public navCtrl: NavController,
     public navParams: NavParams,
     private nfcProvider: NFCProvider
-    ) {
+  ) {
   }
 
   ionViewDidLoad() {
@@ -37,12 +39,10 @@ export class NFCReaderPage {
     })
   }
 
-  ionViewWillUnload(){
-    this.nfcProvider.removeTagDiscoveredListener(()=>{
-      console.log("移除监听成功");
-    },err=>{
-      console.error("移除监听失败");
-    })
+  ionViewWillUnload() {
+    if (this.obser) {
+      this.obser.unsubscribe();
+    }
   }
 
   addTagTestData() {
@@ -67,7 +67,7 @@ export class NFCReaderPage {
   }
 
   addTagDiscoveredListener() {
-    this.nfcProvider.addTagDiscoveredListener(() => {
+    this.obser  = this.nfcProvider.addTagDiscoveredListener(() => {
       console.log('nfc-reader addTagDiscoveredListener 成功');
     }, err => {
       console.error('nfc-reader addTagDiscoveredListener 失败:' + JSON.stringify(err));

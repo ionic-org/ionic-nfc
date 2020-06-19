@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { NFCProvider } from '../../providers/nfc/nfc';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'page-nfc-writer',
@@ -10,6 +11,8 @@ export class NFCWriterPage {
   ready: boolean = false;
 
   tip: string;
+
+  obser:  Subscription;
 
   messageToWrite: Array<any>;
   constructor(
@@ -36,11 +39,9 @@ export class NFCWriterPage {
   }
 
   ionViewWillUnload() {
-    this.nfcProvider.removeTagDiscoveredListener(() => {
-      console.log("移除监听成功");
-    }, err => {
-      console.error("移除监听失败");
-    })
+    if (this.obser) {
+      this.obser.unsubscribe();
+    }
   }
 
   addTagDiscoveredListener() {

@@ -12,10 +12,6 @@ export class NFCProvider {
     return this.nfc.addTagDiscoveredListener(onSuccess, onFailure);
   }
 
-  removeTagDiscoveredListener(onSuccess?: Function, onFailure?: Function): Observable<any> {
-    return this.nfc.removeTagDiscoveredListener(onSuccess, onFailure);
-  }
-
   write(message: any[]): Promise<any> {
     return this.nfc.write(message);
   }
