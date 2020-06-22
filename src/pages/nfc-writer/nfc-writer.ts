@@ -29,11 +29,13 @@ export class NFCWriterPage {
     this.platform.ready().then(() => {
       console.log("platform ready");
       this.ready = true;
+      this.tip = "platform ready"
 
       if (this.platform.is('cordova')) {
         console.log("platform is cordova");
         this.addTagDiscoveredListener();
       } else {
+        this.tip = "not cordova"
         // this.addTagTestData()
       }
     })

@@ -7,7 +7,14 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-  <button ion-button block color="secondary" (click)="clickRead()">读</button>
-  <button ion-button block color="danger" (click)="clickWrite()">写</button>
+<ion-content>
+  <ion-card>
+    <ion-card-header>platform</ion-card-header>
+    <ion-card-content>{{platform.platforms()}}</ion-card-content>
+  </ion-card>
+  <ion-list padding-left padding-right>
+    <button ion-button block color="secondary" (click)="clickRead()">读</button>
+    <button ion-button block color="danger" (click)="clickWrite(1)">写</button>
+    <button ion-button block color="danger" (click)="clickWrite(2)">写(高级)</button>
+  </ion-list>
 </ion-content>
