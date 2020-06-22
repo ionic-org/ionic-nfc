@@ -67,7 +67,7 @@ export class NFCWriterPage {
     let NDEF_Message = [];
 
     // NDEF Type Name Format
-    let tnf = this.nfcProvider.ndef.TNF_EXTERNAL_TYPE;
+    let tnf = this.nfcProvider.TNF_EXTERNAL_TYPE;
     // NDEF Record Type
     let recordType = "android.com:pkg";
     // content of the record
@@ -80,7 +80,7 @@ export class NFCWriterPage {
 
 
     // create the actual NDEF record:
-    let NDEF_Record: NdefRecord = this.nfcProvider.ndef.record(tnf, recordType, [], recordPayload);
+    let NDEF_Record: NdefRecord = this.nfcProvider.record(tnf, recordType, [], recordPayload);
     // put the record in the message array:
     NDEF_Message.push(NDEF_Record);
 
