@@ -35,6 +35,7 @@ export class NFCWriterAdvancedPage {
     console.log(this.appPicker);
     this.tip = "select Change:" + this.appPicker;
     this.messageToWrite = this.makeMessage();
+    console.log("messageToWrite:"+JSON.stringify(this.messageToWrite));
   }
 
   addTagDiscoveredListener() {
@@ -42,13 +43,12 @@ export class NFCWriterAdvancedPage {
       console.log('nfc addTagDiscoveredListener success');
 
       this.messageToWrite = this.makeMessage();
-      let NDEF_Record: NdefRecord = this.messageToWrite[0];
-      this.tip = "NDEF消息数据创建成功:" + NDEF_Record.payload;
     }, err => {
       console.error('nfc addTagDiscoveredListener error:' + JSON.stringify(err));
     }).subscribe((event) => {
       console.log("nfc addTagDiscoveredListener subscribe:" + JSON.stringify(event));
       this.tip = "正在写入";
+      console.log("messageToWrite:"+JSON.stringify(this.messageToWrite));
       this.writeTag(this.messageToWrite);
     })
   }
@@ -64,9 +64,9 @@ export class NFCWriterAdvancedPage {
     // NDEF record object
     let NDEF_Record;    
 
-    switch (this.appPicker) {
+    switch (Number(this.appPicker)) {
       case 1: // like NFC Task Launcher
-        // format the MIME media record:
+        // 创建一条MIME类型的记录
         recordType = "x/nfctl";
         recordPayload = "enZ:Foursquare;c:4a917563f964a520401a20e3";
         NDEF_Record = this.nfcProvider.mimeMediaRecord(recordType, recordPayload);
@@ -75,7 +75,7 @@ export class NFCWriterAdvancedPage {
         // format the Android Application Record:
         tnf = this.nfcProvider.TNF_EXTERNAL_TYPE;
         recordType = "android.com:pkg";
-        recordPayload = "com.jwsoft.nfcactionlauncher";
+        recordPayload = "com.tencent.mm";
         NDEF_Record = this.nfcProvider.record(tnf, recordType, [], recordPayload);
         NDEF_Message.push(NDEF_Record); // push the record onto the message
         break;
