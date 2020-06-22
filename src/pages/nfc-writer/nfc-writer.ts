@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { NFCProvider } from '../../providers/nfc/nfc';
 import { Subscription } from 'rxjs';
+import { NdefRecord } from '@ionic-native/nfc';
 
 @Component({
   selector: 'page-nfc-writer',
@@ -12,7 +13,7 @@ export class NFCWriterPage {
 
   tip: string;
 
-  obser:  Subscription;
+  obser: Subscription;
 
   messageToWrite: Array<any>;
   constructor(
@@ -49,7 +50,8 @@ export class NFCWriterPage {
       console.log('nfc addTagDiscoveredListener success');
 
       this.messageToWrite = this.makeMessage();
-      this.tip = "NDEF消息数据创建成功";
+      let NDEF_Record: NdefRecord = this.messageToWrite[0];
+      this.tip = "NDEF消息数据创建成功:" + NDEF_Record.payload;
     }, err => {
       console.error('nfc addTagDiscoveredListener error:' + JSON.stringify(err));
     }).subscribe((event) => {
@@ -68,14 +70,15 @@ export class NFCWriterPage {
     let recordType = "android.com:pkg";
     // content of the record
     // com.tencent.mm 微信包名
-    let recordPayload = "com.blueearth.idc";
+    let recordPayload = "com.tencent.mm";
+    // let recordPayload = "com.blueearth.idc";
     // NDEF record object
     // let record = [];
     // NDEF Message to pass to writeTag()  
 
 
     // create the actual NDEF record:
-    let NDEF_Record = this.nfcProvider.ndef.record(tnf, recordType, [], recordPayload);
+    let NDEF_Record: NdefRecord = this.nfcProvider.ndef.record(tnf, recordType, [], recordPayload);
     // put the record in the message array:
     NDEF_Message.push(NDEF_Record);
 

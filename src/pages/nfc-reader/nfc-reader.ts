@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { NFCProvider } from '../../providers/nfc/nfc';
-import { NdefEvent } from '@ionic-native/nfc';
 import { Subscription } from 'rxjs';
 
 @Component({
