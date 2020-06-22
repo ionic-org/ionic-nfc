@@ -5,7 +5,7 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 // ionic-native
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { NFC, Ndef } from '@ionic-native/nfc/ngx';
+import { NFC, Ndef } from '@ionic-native/nfc';
 
 // pages
 import { MyApp } from './app.component';

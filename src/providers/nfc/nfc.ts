@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { NFC, Ndef } from '@ionic-native/nfc/ngx';
-import { Observable } from 'rxjs/Observable';
+import { NFC, Ndef } from '@ionic-native/nfc';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class NFCProvider {
