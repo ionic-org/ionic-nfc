@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { NFCProvider } from '../../providers/nfc/nfc';
-declare var $;
-declare var Media;
+declare let $;
+declare let Media;
 
 @Component({
   selector: 'page-mood-setter',
@@ -53,6 +53,24 @@ export class MoodSetterPage {
   }
 
   ionViewDidLoad() {
+    this.win = window;
+    this.nav = navigator;
+
+    this.modeButton = document.getElementById('modeButton');
+    this.modeValue = document.getElementById('modeValue');
+    this.tagModeMessage = document.getElementById('tagModeMessage');
+
+    this.bri = <HTMLInputElement>document.getElementById('bri');
+    this.hue = <HTMLInputElement>document.getElementById('hue');
+    this.sat = <HTMLInputElement>document.getElementById('sat');
+    this.lightOn = <HTMLInputElement>document.getElementById('lightOn');
+    this.lightNumber = <HTMLSelectElement>document.getElementById('lightNumber');
+    this.songs = <HTMLSelectElement>document.getElementById('songs');
+    this.playButton = document.getElementById('playButton');
+    this.stopButton = document.getElementById('stopButton');
+
+    this.messageDiv = document.getElementById('messageDiv');
+
     this.bindEvents();
   }
 
@@ -84,36 +102,38 @@ export class MoodSetterPage {
     this.findControllerAddress();   // find address and get settings
     this.setMode();                 // set the read/write mode for tags
 
-    // listen for NDEF Formatable tags (for write mode):
-    this.nfcProvider.addNdefFormatableListener((status) => {         // listener successfully initialized
-      console.log("Listening for NDEF-formatable tags.");
-    }, (error) => {          // listener fails to initialize
-      this.display("NFC reader failed to initialize " +
-        JSON.stringify(error));
-    }
-    ).subscribe((nfcEvent) => {
-      this.onWritableNfc(nfcEvent);
-    });
+    if (this.platform.is('cordova')) {
+      // listen for NDEF Formatable tags (for write mode):
+      this.nfcProvider.addNdefFormatableListener((status) => {         // listener successfully initialized
+        console.log("Listening for NDEF-formatable tags.");
+      }, (error) => {          // listener fails to initialize
+        this.display("NFC reader failed to initialize " +
+          JSON.stringify(error));
+      }
+      ).subscribe((nfcEvent) => {
+        this.onWritableNfc(nfcEvent);
+      });
 
-    // listen for NDEF tags so you can overwrite MIME message onto them
-    this.nfcProvider.addNdefListener(() => {                // listener successfully initialized
-      console.log("listening for Ndef tags");
-    }, (error) => {           // listener fails to initialize
-      console.log("ERROR: " + JSON.stringify(error));
-    }
-    ).subscribe((nfcEvent) => {
-      this.onWritableNfc(nfcEvent);
-    });
+      // listen for NDEF tags so you can overwrite MIME message onto them
+      this.nfcProvider.addNdefListener(() => {                // listener successfully initialized
+        console.log("listening for Ndef tags");
+      }, (error) => {           // listener fails to initialize
+        console.log("ERROR: " + JSON.stringify(error));
+      }
+      ).subscribe((nfcEvent) => {
+        this.onWritableNfc(nfcEvent);
+      });
 
-    // listen for MIME media types of type 'text/hue' (for read or write)
-    // Android calls the most specific listener, so text/hue tags end up here
-    this.nfcProvider.addMimeTypeListener(this.app.mimeType, () => {
-      console.log("listening for mime media tags");
-    }, (error) => {
-      console.log("ERROR: " + JSON.stringify(error));
-    }).subscribe((nfcEvent) => {
-      this.onMimeMediaNfc(nfcEvent);
-    });
+      // listen for MIME media types of type 'text/hue' (for read or write)
+      // Android calls the most specific listener, so text/hue tags end up here
+      this.nfcProvider.addMimeTypeListener(this.app.mimeType, () => {
+        console.log("listening for mime media tags");
+      }, (error) => {
+        console.log("ERROR: " + JSON.stringify(error));
+      }).subscribe((nfcEvent) => {
+        this.onMimeMediaNfc(nfcEvent);
+      });
+    }
 
     this.getSongs();                // load the drop-down menu with songs
   }
@@ -149,14 +169,14 @@ export class MoodSetterPage {
   }
 
   onMimeMediaNfc = (nfcEvent) => {
-    var tag = nfcEvent.tag;
+    let tag = nfcEvent.tag;
 
     if (this.app.mode === "read") {   // in read mode, read the tag
       // when app is launched by scanning text/hue tag
       // you need to add a delay so the call to get the 
       // hub address can finish before you call the api.
       // if you have the address, delay 0, otherwise, delay 50:
-      var timeout = this.hub.ipaddress ? 0 : 500;
+      let timeout = this.hub.ipaddress ? 0 : 500;
 
       setTimeout(function () {
         this.readTag(tag);
@@ -182,7 +202,7 @@ export class MoodSetterPage {
     $.ajax({
       url: 'http://www.meethue.com/api/nupnp',
       dataType: 'json',
-      success: function (data) {
+      success: (data) => {
         // expecting a list with a property called internalipaddress:
         if (data[0]) {
           this.hub.ipaddress = data[0].internalipaddress;
@@ -192,7 +212,7 @@ export class MoodSetterPage {
             "Couldn't find a Hue on your network");
         }
       },
-      error: function (xhr, type) {    // alert box with the error
+      error: (xhr, type) => {    // alert box with the error
         this.nav.notification.alert(xhr.responseText +
           " (" + xhr.status + ")", null, "Error");
       }
@@ -200,13 +220,13 @@ export class MoodSetterPage {
   }
 
   ensureAuthorized = () => {
-    var message;      // response from the hub
+    let message;      // response from the hub
 
     // query the hub:
     $.ajax({
       type: 'GET',
       url: 'http://' + this.hub.ipaddress + '/api/' + this.hub.username,
-      success: function (data) {      // successful reply from the hub
+      success: (data) => {      // successful reply from the hub
         if (data[0].error) {
           // if not authorized, users gets an alert box
           if (data[0].error.type === 1) {
@@ -218,7 +238,7 @@ export class MoodSetterPage {
             this.authorize, "Not Authorized");
         }
       },
-      error: function (xhr, type) {    // error message from the hub
+      error: (xhr, type) => {    // error message from the hub
         this.nav.notification.alert(xhr.responseText +
           " (" + xhr.status + ")", null, "Error");
       }
@@ -226,7 +246,7 @@ export class MoodSetterPage {
   }
 
   authorize = () => {
-    var data = {                      // what you'll send to the hub:
+    let data = {                      // what you'll send to the hub:
       "devicetype": this.hub.appTitle,    // device type
       "username": this.hub.username       // username
     },
@@ -236,7 +256,7 @@ export class MoodSetterPage {
       type: 'POST',
       url: 'http://' + this.hub.ipaddress + '/api',
       data: JSON.stringify(data),
-      success: function (data) {       // successful reply from the hub
+      success: (data) => {       // successful reply from the hub
         if (data[0].error) {
           // if not authorized, users gets an alert box
           if (data[0].error.type === 101) {
@@ -252,7 +272,7 @@ export class MoodSetterPage {
           this.getHueSettings();   // if authorized, get the settings
         }
       },
-      error: function (xhr, type) {   // error reply from the hub
+      error: (xhr, type) => {   // error reply from the hub
         this.nav.notification.alert(xhr.responseText +
           " (" + xhr.status + ")", null, "Error");
       }
@@ -265,14 +285,14 @@ export class MoodSetterPage {
     $.ajax({
       type: 'GET',
       url: 'http://' + this.hub.ipaddress + '/api/' + this.hub.username,
-      success: function (data) {
+      success: (data) => {
         if (!data.lights) {
           // assume they need to authorize
           this.ensureAuthorized();
         } else {
           // the full settings take more than you want to
           // fit on a tag, so just get the settings you want:
-          for (var thisLight in data.lights) {
+          for (let thisLight in data.lights) {
             this.hub.lights[thisLight] = {};
             this.hub.lights[thisLight].name = data.lights[thisLight].name;
             this.hub.lights[thisLight].state = {};
@@ -298,7 +318,7 @@ export class MoodSetterPage {
     // if "on" is a property and it's false:
     if (settings.hasOwnProperty("on") && !settings.on) {
       // go through all the other properties:
-      for (var prop in settings) {
+      for (let prop in settings) {
         // if this property is not inherited:
         if (settings.hasOwnProperty(prop)
           && prop != "on") {      // and it's not the "on" property
@@ -313,13 +333,13 @@ export class MoodSetterPage {
       url: 'http://' + this.hub.ipaddress + '/api/' + this.hub.username +
         '/lights/' + lightId + '/state',
       data: JSON.stringify(settings),
-      success: function (data) {
+      success: (data) => {
         if (data[0].error) {
           this.nav.notification.alert(JSON.stringify(data),
             null, "API Error");
         }
       },
-      error: function (xhr, type) {
+      error: (xhr, type) => {
         this.nav.notification.alert(xhr.responseText + " (" +
           xhr.status + ")", null, "Error");
       }
@@ -336,7 +356,7 @@ export class MoodSetterPage {
     this.lightNumber.options[2].innerHTML = this.hub.lights["3"].name;
 
     // set the state of the controls with the current choice:
-    var thisLight = this.hub.lights[this.hub.currentLight];
+    let thisLight = this.hub.lights[this.hub.currentLight];
     this.hue.value = thisLight.state.hue;
     this.bri.value = thisLight.state.bri;
     this.sat.value = thisLight.state.sat;
@@ -345,9 +365,9 @@ export class MoodSetterPage {
 
   setBrightness = () => {
     // get the value from the UI control:
-    var thisBrightness = parseInt(this.bri.value, 10);
+    let thisBrightness = parseInt(this.bri.value, 10);
     // get the property from hub object:
-    var thisLight = this.hub.lights[this.hub.currentLight];
+    let thisLight = this.hub.lights[this.hub.currentLight];
     // change the property in hub object:
     thisLight.state.bri = thisBrightness;
     // update Hue hub with the new value:
@@ -356,9 +376,9 @@ export class MoodSetterPage {
 
   setHue = () => {
     // get the value from the UI control:
-    var thisHue = parseInt(this.hue.value, 10);
+    let thisHue = parseInt(this.hue.value, 10);
     // get the property from hub object:
-    var thisLight = this.hub.lights[this.hub.currentLight];
+    let thisLight = this.hub.lights[this.hub.currentLight];
     // change the property in hub object:
     thisLight.state.hue = thisHue;
     // update Hue hub with the new value:
@@ -367,9 +387,9 @@ export class MoodSetterPage {
 
   setSaturation = () => {
     // get the value from the UI control:
-    var thisSaturation = parseInt(this.bri.value, 10);
+    let thisSaturation = parseInt(this.bri.value, 10);
     // get the property from hub object:
-    var thisLight = this.hub.lights[this.hub.currentLight];
+    let thisLight = this.hub.lights[this.hub.currentLight];
     // change the property in hub object:
     thisLight.state.sat = thisSaturation;
     // update Hue hub with the new value:
@@ -378,9 +398,9 @@ export class MoodSetterPage {
 
   setLightOn = () => {
     // get the value from the UI control:
-    var thisOn = this.lightOn.checked;
+    let thisOn = this.lightOn.checked;
     // get the property from hub object:
-    var thisLight = this.hub.lights[this.hub.currentLight];
+    let thisLight = this.hub.lights[this.hub.currentLight];
     // change the property in hub object:
     thisLight.state.on = thisOn;
     // update Hue hub with the new value:
@@ -388,63 +408,51 @@ export class MoodSetterPage {
   }
 
   setAllLights = (settings) => {
-    for (var thisLight in settings) {
+    for (let thisLight in settings) {
       this.putHueSettings(settings[thisLight].state, thisLight);
     }
   }
 
   getSongs = () => {
-    // failure handler for directoryReader.readEntries(), below:
-    var failure = function (error) {
-      alert("Error: " + JSON.stringify(error));
-    };
-
-    // success handler for directoryReader.readEntries(), below:
-    var foundFiles = function (files) {
-      if (files.length > 0) {
-        // clear existing songs
-        this.songs.innerHTML = "";
-      } else {
-        this.nav.notification.alert(
-          "Use `adb` to add songs to " + this.app.musicPath, {}, "No Music");
-      }
-
-      // once you have the list of files, put the valid ones in the selector:
-      for (var i = 0; i < files.length; i++) {
-        // if the filename is a valid file:
-        if (files[i].isFile) {
-          // create an option element:
-          let option = document.createElement("option");
-          // value = song's filepath:
-          option.value = files[i].fullPath;
-          // label = song name:
-          option.innerHTML = files[i].name;
-          // select the first one and add it to the selector:
-          if (i === 0) { option.selected = true; }
-          this.songs.appendChild(option);
+    // look for the music directory:
+    this.win.resolveLocalFileSystemURI(this.app.musicPath, (directoryEntry) => {
+      let directoryReader = directoryEntry.createReader();
+      directoryReader.readEntries((files) => {
+        if (files.length > 0) {
+          // clear existing songs
+          this.songs.innerHTML = "";
+        } else {
+          this.nav.notification.alert(
+            "Use `adb` to add songs to " + this.app.musicPath, {}, "No Music");
         }
-      }
-      this.onSongChange();        // update the current song
-    };
 
-    // success handler for window.resolveLocalFileSystemURI(), below:
-    var foundDirectory = function (directoryEntry) {
-      var directoryReader = directoryEntry.createReader();
-      directoryReader.readEntries(foundFiles, failure);
-    };
+        // once you have the list of files, put the valid ones in the selector:
+        for (let i = 0; i < files.length; i++) {
+          // if the filename is a valid file:
+          if (files[i].isFile) {
+            // create an option element:
+            let option = document.createElement("option");
+            // value = song's filepath:
+            option.value = files[i].fullPath;
+            // label = song name:
+            option.innerHTML = files[i].name;
+            // select the first one and add it to the selector:
+            if (i === 0) { option.selected = true; }
+            this.songs.appendChild(option);
+          }
+        }
 
-    // failure handler for window.resolveLocalFileSystemURI(), below:
-    var missingDirectory = function (error) {
+        this.onSongChange();        // update the current song
+      }, (error) => {
+        alert("Error: " + JSON.stringify(error));
+      });
+    }, (error) => {
       this.nav.notification.alert("Music directory " + this.app.musicPath +
         " does not exist", {}, "Music Directory");
-    };
-
-    // look for the music directory:
-    this.win.resolveLocalFileSystemURI(this.app.musicPath,
-      foundDirectory, missingDirectory);
+    });
   }
 
-  onSongChange = (event) => {
+  onSongChange = (event?) => {
     let option: HTMLOptionElement = <HTMLOptionElement>this.songs[this.songs.selectedIndex];
     let uri = option.value;
     this.setSong(uri);
@@ -560,7 +568,7 @@ export class MoodSetterPage {
       recordType,
       content;
 
-    for (var thisRecord in message) {
+    for (let thisRecord in message) {
       // get the next record in the message array:
       record = message[thisRecord];
       // parse the record:
@@ -603,12 +611,12 @@ export class MoodSetterPage {
 
     // put the record in the message array:
     if (this.hub.lights !== {}) {
-      var huePayload = JSON.stringify({ "lights": this.hub.lights });
-      var lightRecord = this.nfcProvider.mimeMediaRecord(this.app.mimeType, huePayload);
+      let huePayload = JSON.stringify({ "lights": this.hub.lights });
+      let lightRecord = this.nfcProvider.mimeMediaRecord(this.app.mimeType, huePayload);
       message.push(lightRecord);
     }
     if (this.app.songUri !== null) {
-      var songRecord = this.nfcProvider.uriRecord(this.app.songUri);
+      let songRecord = this.nfcProvider.uriRecord(this.app.songUri);
       message.push(songRecord);
     }
 
