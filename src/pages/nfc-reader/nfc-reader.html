@@ -5,26 +5,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid *ngIf="tagEvent">
-    <ion-row>
-      <ion-col col-4>isTrusted</ion-col>
-      <ion-col>{{tagEvent?.isTrusted}}</ion-col>
-    </ion-row>
-    <ion-row *ngFor="let item of tagEvent?.tag?.id">
-      <ion-col col-4>tag.id</ion-col>
-      <ion-col>
-        {{item}}
-      </ion-col>
-    </ion-row>
-    <ion-row *ngFor="let item of tagEvent?.tag?.techTypes">
-      <ion-col col-4>tag.techTypes</ion-col>
-      <ion-col>
-        {{item}}
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col col-6>bytesToHexString(tag.id)</ion-col>
-      <ion-col>{{tagId}}</ion-col>
-    </ion-row>
-  </ion-grid>
+  <div class="app">
+    <div id="messageDiv"></div>
+  </div>
 </ion-content>

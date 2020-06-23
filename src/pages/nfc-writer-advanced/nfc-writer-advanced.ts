@@ -11,7 +11,6 @@ export class NFCWriterAdvancedPage {
 
   appPicker: any;
   messageToWrite: Array<NdefRecord>;
-  tip: string;
 
   constructor(
     public platform: Platform,
@@ -33,7 +32,6 @@ export class NFCWriterAdvancedPage {
 
   selectChange() {
     console.log(this.appPicker);
-    this.tip = "select Change:" + this.appPicker;
     this.messageToWrite = this.makeMessage();
     console.log("messageToWrite:" + JSON.stringify(this.messageToWrite));
   }
@@ -43,12 +41,9 @@ export class NFCWriterAdvancedPage {
       console.log('nfc addTagDiscoveredListener success');
 
       this.messageToWrite = this.makeMessage();
-    }, err => {
-      console.error('nfc addTagDiscoveredListener error:' + JSON.stringify(err));
+    }, error => {
+      this.display("NFC reader failed to initialize " + JSON.stringify(error));
     }).subscribe((event) => {
-      console.log("nfc addTagDiscoveredListener subscribe:" + JSON.stringify(event));
-      this.tip = "正在写入";
-      console.log("messageToWrite:" + JSON.stringify(this.messageToWrite));
       this.writeTag(this.messageToWrite);
     })
   }
@@ -72,7 +67,7 @@ export class NFCWriterAdvancedPage {
         NDEF_Record = this.nfcProvider.mimeMediaRecord(recordType, recordPayload);
         NDEF_Message.push(NDEF_Record); // push the record onto the message
 
-        
+
         NDEF_Record = this.nfcProvider.androidApplicationRecord("com.tencent.mm");
         NDEF_Message.push(NDEF_Record); // push the record onto the message
         break;
@@ -143,7 +138,7 @@ export class NFCWriterAdvancedPage {
         NDEF_Message.push(NDEF_Record); // push the record onto the message
         break;
 
-      case 5: 
+      case 5:
         NDEF_Record = this.nfcProvider.androidApplicationRecord("com.tencent.mobileqq");
         NDEF_Message.push(NDEF_Record); // push the record onto the message
         break;
@@ -154,14 +149,23 @@ export class NFCWriterAdvancedPage {
   writeTag(message) {
     // write the record to the tag:
     this.nfcProvider.write(message).then(() => {
-      console.log("write success");
-      // when complete, run this callback function:
-      this.tip = "写入成功"
+      this.display("Wrote data to tag.");
     }).catch(reason => {
-      // this function runs if the write command fails:
-      console.error("writeTag fail:" + reason);
-      this.tip = "写入失败" + reason;
+      this.display("There was a problem " + reason);
     })
   }
 
+
+  clear() {
+    let messageDiv = document.getElementById('messageDiv');
+    messageDiv.innerHTML = "";
+  }
+
+  display(message) {
+    let messageDiv = document.getElementById('messageDiv');
+    let label = document.createTextNode(message);
+    let lineBreak = document.createElement("br");
+    messageDiv.appendChild(lineBreak);
+    messageDiv.appendChild(label);
+  }
 }

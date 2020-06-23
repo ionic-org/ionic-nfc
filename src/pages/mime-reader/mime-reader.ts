@@ -1,62 +1,62 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { NFCProvider } from '../../providers/nfc/nfc';
-import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'page-nfc-reader',
-  templateUrl: 'nfc-reader.html',
+  selector: 'page-mime-reader',
+  templateUrl: 'mime-reader.html',
 })
-export class NFCReaderPage {
-
-  ready: boolean = false;
+export class MIMEReaderPage {
 
   constructor(
-    private platform: Platform,
+    public platform: Platform,
     public navCtrl: NavController,
     public navParams: NavParams,
-    private nfcProvider: NFCProvider
-  ) {
+    public nfcProvider: NFCProvider) {
   }
 
   ionViewDidLoad() {
     this.platform.ready().then(() => {
       console.log("platform ready");
-      this.ready = true;
-
       if (this.platform.is('cordova')) {
-        this.addTagDiscoveredListener();
+        this.addMimeTypeListener();
+      } else {
+        console.log('not cordova')
       }
     })
   }
 
-  addTagDiscoveredListener() {
-    this.nfcProvider.addTagDiscoveredListener(() => {
-      this.display("Tap a tag to read its id number.");
+  addMimeTypeListener() {
+    this.nfcProvider.addMimeTypeListener("text/plain", () => {
+      this.display("Tap an NFC tag to begin");
     }, error => {
       this.display("NFC reader failed to initialize " + JSON.stringify(error));
-    }).subscribe((nfcEvent) => {
+    }).subscribe((nfcEvent: any) => {
       let tag = nfcEvent.tag;
-      this.display("Read tag: " + this.nfcProvider.bytesToHexString(tag.id));
-    })
-  }
+      let text = "";
+      let payload;
 
-  bytesToHexString(bytes) {
-    var dec, hexstring, bytesAsHexString = "";
-    for (var i = 0; i < bytes.length; i++) {
-      if (bytes[i] >= 0) {
-        dec = bytes[i];
+      this.clear();
+      this.display("Read tag: " + this.nfcProvider.bytesToHexString(tag.id));
+
+      // get the playload from the first message
+      payload = tag.ndefMessage[0].payload;
+
+      if (payload[0] < 5) {
+        // payload begins with a small integer, it's encoded text
+        let languageCodeLength = payload[0];
+
+        // chop off the language code and convert to string
+        text = this.nfcProvider.bytesToString(payload.slice(languageCodeLength + 1));
+
       } else {
-        dec = 256 + bytes[i];
+        // assume it's text without language info
+        text = this.nfcProvider.bytesToString(payload);
       }
-      hexstring = dec.toString(16);
-      // zero padding
-      if (hexstring.length === 1) {
-        hexstring = "0" + hexstring;
-      }
-      bytesAsHexString += hexstring;
-    }
-    return bytesAsHexString;
+
+      this.display("Message: " + text);
+
+    })
   }
 
   clear() {

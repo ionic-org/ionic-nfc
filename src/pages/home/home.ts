@@ -4,6 +4,7 @@ import { NFCReaderPage } from '../nfc-reader/nfc-reader';
 import { NFCWriterPage } from '../nfc-writer/nfc-writer';
 import { NFCWriterAdvancedPage } from '../nfc-writer-advanced/nfc-writer-advanced';
 import { NDEFReaderPage } from '../ndef-reader/ndef-reader';
+import { MIMEReaderPage } from '../mime-reader/mime-reader';
 
 @Component({
   selector: 'page-home',
@@ -29,6 +30,8 @@ export class HomePage {
       case 2:
         this.navCtrl.push(NDEFReaderPage);
         break;
+      case 3:
+        this.navCtrl.push(MIMEReaderPage)
       default:
         break;
     }

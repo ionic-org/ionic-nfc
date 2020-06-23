@@ -87,8 +87,26 @@ export class NDEFReaderPage {
     messageDiv.appendChild(label);             // add the text
   }
 
+  /**
+   *  Process NDEF tag data from the nfcEvent
+   */
+  dealNFC(nfcEvent: any) {
+    this.clear();
+    this.display(" Event Type: " + nfcEvent.type);
+    this.showTag(nfcEvent.tag);
+  }
+
+  /*
+      Process non-NDEF tag data from the nfcEvent
+      This includes 
+       * Non NDEF NFC Tags
+       * NDEF Formatable Tags
+       * Mifare Classic Tags on Nexus 4, Samsung S4 
+       (because Broadcom doesn't support Mifare Classic)
+   */
   dealNonNDEF(nfcEvent: any) {
-    this.clear();              // clear the message div
+    // 读取标签的UID以及标签的信息，然后添加一个showTag（）函数去显示从onNfc（）函数中得到的标签信息
+    this.clear();
     // display the event type:
     this.display("Event Type: " + nfcEvent.type);
     var tag = nfcEvent.tag;
@@ -99,13 +117,9 @@ export class NDEFReaderPage {
     }
   }
 
-  dealNFC(nfcEvent: any) {
-    this.clear();              // clear the message div
-    // display the event type:
-    this.display(" Event Type: " + nfcEvent.type);
-    this.showTag(nfcEvent.tag);   // display the tag details
-  }
-
+  /**
+   * writes @tag to the message div:
+   */
   showTag(tag) {
     // display the tag properties:
     this.display("Tag ID: " + this.nfcProvider.bytesToHexString(tag.id));

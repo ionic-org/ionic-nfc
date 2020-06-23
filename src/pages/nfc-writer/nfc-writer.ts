@@ -9,12 +9,6 @@ import { NdefRecord } from '@ionic-native/nfc';
   templateUrl: 'nfc-writer.html',
 })
 export class NFCWriterPage {
-  ready: boolean = false;
-
-  tip: string;
-
-  obser: Subscription;
-
   messageToWrite: Array<any>;
   constructor(
     private platform: Platform,
@@ -24,41 +18,20 @@ export class NFCWriterPage {
   }
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad NFCWriterPage');
-
     this.platform.ready().then(() => {
-      console.log("platform ready");
-      this.ready = true;
-      this.tip = "platform ready"
-
       if (this.platform.is('cordova')) {
-        console.log("platform is cordova");
         this.addTagDiscoveredListener();
-      } else {
-        this.tip = "not cordova"
-        // this.addTagTestData()
       }
     })
   }
 
-  ionViewWillUnload() {
-    if (this.obser) {
-      this.obser.unsubscribe();
-    }
-  }
-
   addTagDiscoveredListener() {
     this.nfcProvider.addTagDiscoveredListener(() => {
-      console.log('nfc addTagDiscoveredListener success');
-
       this.messageToWrite = this.makeMessage();
-      let NDEF_Record: NdefRecord = this.messageToWrite[0];
-      this.tip = "NDEF消息数据创建成功:" + NDEF_Record.payload;
-    }, err => {
-      console.error('nfc addTagDiscoveredListener error:' + JSON.stringify(err));
-    }).subscribe((event) => {
-      console.log("nfc addTagDiscoveredListener subscribe:" + JSON.stringify(event));
-      this.tip = "正在写入";
+      this.display("Tap an NFC tag to write data");
+    }, error => {
+      this.display("NFC reader failed to initialize " + JSON.stringify(error));
+    }).subscribe((nfcEvent) => {
       this.writeTag(this.messageToWrite);
     })
   }
@@ -74,14 +47,23 @@ export class NFCWriterPage {
   writeTag(message) {
     // write the record to the tag:
     this.nfcProvider.write(message).then(() => {
-      console.log("write success");
-      // when complete, run this callback function:
-      this.tip = "写入成功"
+      this.display("Wrote data to tag.");
     }).catch(reason => {
-      // this function runs if the write command fails:
-      console.error("writeTag fail:" + reason);
-      this.tip = "写入失败" + reason;
+      this.display("There was a problem " + reason);
     })
+  }
+
+  clear() {
+    let messageDiv = document.getElementById('messageDiv');
+    messageDiv.innerHTML = "";
+  }
+
+  display(message) {
+    let messageDiv = document.getElementById('messageDiv');
+    let label = document.createTextNode(message);
+    let lineBreak = document.createElement("br");
+    messageDiv.appendChild(lineBreak);
+    messageDiv.appendChild(label);
   }
 
 }
