@@ -28,10 +28,10 @@ export class NDEFReaderPage {
   addListener() {
     this.nfcProvider.addTagDiscoveredListener((status) => {
       // listener successfully initialized
-      this.tip = "Listening for NFC tags.";
+      this.display("Listening for NFC tags.");
     }, (error) => {
       // listener fails to initialize
-      console.error("NFC reader failed to initialize " + JSON.stringify(error));
+      this.display("NFC reader failed to initialize " + JSON.stringify(error));
     }).subscribe((nfcEvent) => {
       // tag successfully scanned
       // onNonNdef
@@ -40,10 +40,10 @@ export class NDEFReaderPage {
 
     this.nfcProvider.addNdefFormatableListener((status) => {
       // listener successfully initialized
-      this.tip = "Listening for NDEF Formatable tags.";
+      this.display("Listening for NDEF Formatable tags.");
     }, (error) => {
       // listener fails to initialize
-      this.tip = "NFC reader failed to initialize " + JSON.stringify(error);
+      this.display("NFC reader failed to initialize " + JSON.stringify(error));
     }).subscribe((nfcEvent) => {
       // tag successfully scanned
       // onNonNdef
@@ -52,10 +52,10 @@ export class NDEFReaderPage {
 
     this.nfcProvider.addNdefListener((status) => {
       // listener successfully initialized
-      this.tip = "Listening for NDEF messages.";
+      this.display("Listening for NDEF messages.");
     }, (error) => {
       // listener fails to initialize
-      this.tip = "NFC reader failed to initialize " + JSON.stringify(error);
+      this.display("NFC reader failed to initialize " + JSON.stringify(error));
     }).subscribe((nfcEvent: any) => {
       // tag successfully scanned
       // onNfc
@@ -64,9 +64,9 @@ export class NDEFReaderPage {
 
     this.nfcProvider.addMimeTypeListener("text/plain", (status) => {
       // listener successfully initialized
-      this.tip = "Listening for plain text MIME Types.";
+      this.display("Listening for plain text MIME Types.");
     }, (error) => {       // listener fails to initialize
-      this.tip = "NFC reader failed to initialize " + JSON.stringify(error);
+      this.display("NFC reader failed to initialize " + JSON.stringify(error));
     }).subscribe((nfcEvent: any) => {
       // tag successfully scanned
       // onNfc
@@ -88,11 +88,15 @@ export class NDEFReaderPage {
   }
 
   dealNonNDEF(nfcEvent: any) {
-    this.nfcEvent = [
-      "Event Type: " + nfcEvent.type,
-      "Tag ID: " + this.nfcProvider.bytesToHexString(nfcEvent.tag.id),
-      "Tech Types: " + nfcEvent.techTypes
-    ];
+    this.clear();              // clear the message div
+    // display the event type:
+    this.display("Event Type: " + nfcEvent.type);
+    var tag = nfcEvent.tag;
+    this.display("Tag ID: " + this.nfcProvider.bytesToHexString(tag.id));
+    this.display("Tech Types: ");
+    for (var i = 0; i < tag.techTypes.length; i++) {
+      this.display("  * " + tag.techTypes[i]);
+    }
   }
 
   dealNFC(nfcEvent: any) {
@@ -159,18 +163,18 @@ export class NDEFReaderPage {
     // display the TNF, Type, and ID:
     this.display(" ");
     this.display("TNF: " + record.tnf);
-    this.display("Type: " +  this.nfcProvider.bytesToString(record.type));
+    this.display("Type: " + this.nfcProvider.bytesToString(record.type));
     this.display("ID: " + this.nfcProvider.bytesToString(record.id));
 
     // if the payload is a Smart Poster, it's an NDEF message.
     // read it and display it (recursion is your friend here):
     if (this.nfcProvider.bytesToString(record.type) === "Sp") {
-       var ndefMessage = this.nfcProvider.decodeMessage(record.payload);
-       this.showMessage(ndefMessage);
+      var ndefMessage = this.nfcProvider.decodeMessage(record.payload);
+      this.showMessage(ndefMessage);
 
-    // if the payload's not a Smart Poster, display it:
+      // if the payload's not a Smart Poster, display it:
     } else {
-       this.display("Payload: " + this.nfcProvider.bytesToString(record.payload));
+      this.display("Payload: " + this.nfcProvider.bytesToString(record.payload));
     }
- }
+  }
 }
