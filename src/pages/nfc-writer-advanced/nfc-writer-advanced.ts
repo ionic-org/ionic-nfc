@@ -35,7 +35,7 @@ export class NFCWriterAdvancedPage {
     console.log(this.appPicker);
     this.tip = "select Change:" + this.appPicker;
     this.messageToWrite = this.makeMessage();
-    console.log("messageToWrite:"+JSON.stringify(this.messageToWrite));
+    console.log("messageToWrite:" + JSON.stringify(this.messageToWrite));
   }
 
   addTagDiscoveredListener() {
@@ -48,21 +48,21 @@ export class NFCWriterAdvancedPage {
     }).subscribe((event) => {
       console.log("nfc addTagDiscoveredListener subscribe:" + JSON.stringify(event));
       this.tip = "正在写入";
-      console.log("messageToWrite:"+JSON.stringify(this.messageToWrite));
+      console.log("messageToWrite:" + JSON.stringify(this.messageToWrite));
       this.writeTag(this.messageToWrite);
     })
   }
 
   makeMessage() {
-    let NDEF_Message = []; 
+    let NDEF_Message = [];
     // NDEF Type Name Format
-    let tnf;        
+    let tnf;
     // NDEF Record Type    
-    let recordType;  
+    let recordType;
     // content of the record   
-    let recordPayload;        
+    let recordPayload;
     // NDEF record object
-    let NDEF_Record;    
+    let NDEF_Record: NdefRecord;
 
     switch (Number(this.appPicker)) {
       case 1: // like NFC Task Launcher
@@ -72,11 +72,8 @@ export class NFCWriterAdvancedPage {
         NDEF_Record = this.nfcProvider.mimeMediaRecord(recordType, recordPayload);
         NDEF_Message.push(NDEF_Record); // push the record onto the message
 
-        // format the Android Application Record:
-        tnf = this.nfcProvider.TNF_EXTERNAL_TYPE;
-        recordType = "android.com:pkg";
-        recordPayload = "com.tencent.mm";
-        NDEF_Record = this.nfcProvider.record(tnf, recordType, [], recordPayload);
+        
+        NDEF_Record = this.nfcProvider.androidApplicationRecord("com.tencent.mm");
         NDEF_Message.push(NDEF_Record); // push the record onto the message
         break;
       case 2: // like Tagstand Writer
@@ -97,7 +94,7 @@ export class NFCWriterAdvancedPage {
         var smartPosterPayload = [
           this.nfcProvider.uriRecord(
             "http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
-            this.nfcProvider.textRecord("foursquare checkin"),
+          this.nfcProvider.textRecord("foursquare checkin"),
         ];
 
         // Create the Smart Poster Record from the array:
@@ -146,12 +143,8 @@ export class NFCWriterAdvancedPage {
         NDEF_Message.push(NDEF_Record); // push the record onto the message
         break;
 
-      case 5: // like App Launcher NFC
-        // format the Android Application Record:
-        tnf = this.nfcProvider.TNF_EXTERNAL_TYPE;
-        recordType = "android.com:pkg";
-        recordPayload = "com.joelapenna.foursquared";
-        NDEF_Record = this.nfcProvider.record(tnf, recordType, [], recordPayload);
+      case 5: 
+        NDEF_Record = this.nfcProvider.androidApplicationRecord("com.tencent.mobileqq");
         NDEF_Message.push(NDEF_Record); // push the record onto the message
         break;
     }

@@ -14,10 +14,9 @@ import { ListPage } from '../pages/list/list';
 import { NFCReaderPage } from '../pages/nfc-reader/nfc-reader';
 import { NFCWriterPage } from '../pages/nfc-writer/nfc-writer';
 import { NFCWriterAdvancedPage } from '../pages/nfc-writer-advanced/nfc-writer-advanced';
+import { NDEFReaderPage } from '../pages/ndef-reader/ndef-reader';
 // providers
 import { NFCProvider } from '../providers/nfc/nfc';
-
-
 
 @NgModule({
   declarations: [
@@ -26,7 +25,8 @@ import { NFCProvider } from '../providers/nfc/nfc';
     ListPage,
     NFCReaderPage,
     NFCWriterPage,
-    NFCWriterAdvancedPage
+    NFCWriterAdvancedPage,
+    NDEFReaderPage
   ],
   imports: [
     BrowserModule,
@@ -39,7 +39,8 @@ import { NFCProvider } from '../providers/nfc/nfc';
     ListPage,
     NFCReaderPage,
     NFCWriterPage,
-    NFCWriterAdvancedPage
+    NFCWriterAdvancedPage,
+    NDEFReaderPage
   ],
   providers: [
     StatusBar,

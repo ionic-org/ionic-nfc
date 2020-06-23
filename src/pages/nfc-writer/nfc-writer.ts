@@ -65,23 +65,7 @@ export class NFCWriterPage {
 
   makeMessage() {
     let NDEF_Message = [];
-
-    // NDEF Type Name Format
-    let tnf = this.nfcProvider.TNF_EXTERNAL_TYPE;
-    // NDEF Record Type
-    let recordType = "android.com:pkg";
-    // content of the record
-    // com.tencent.mm 微信包名
-    let recordPayload = "com.tencent.mm";
-    // let recordPayload = "com.blueearth.idc";
-    // NDEF record object
-    // let record = [];
-    // NDEF Message to pass to writeTag()  
-
-
-    // create the actual NDEF record:
-    let NDEF_Record: NdefRecord = this.nfcProvider.record(tnf, recordType, [], recordPayload);
-    // put the record in the message array:
+    let NDEF_Record = this.nfcProvider.androidApplicationRecord("com.tencent.mm");
     NDEF_Message.push(NDEF_Record);
 
     return NDEF_Message;
