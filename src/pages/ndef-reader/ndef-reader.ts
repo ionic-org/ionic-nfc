@@ -7,9 +7,6 @@ import { NFCProvider } from '../../providers/nfc/nfc';
   templateUrl: 'ndef-reader.html',
 })
 export class NDEFReaderPage {
-
-  tip: string;
-  nfcEvent: Array<any>;
   constructor(
     public platform: Platform,
     public navCtrl: NavController,

@@ -5,12 +5,5 @@
 </ion-header>
 
 <ion-content padding>
-  <ion-label>{{tip}}</ion-label>
-  <ion-grid *ngIf="nfcEvent">
-    <ion-row *ngFor="let item of nfcEvent">
-      <ion-col>{{item.key}}</ion-col>
-    </ion-row>
-  </ion-grid>
-
   <div id="messageDiv"></div>
 </ion-content>
