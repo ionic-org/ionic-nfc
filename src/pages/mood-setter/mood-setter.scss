@@ -1,0 +1,23 @@
+page-mood-setter {
+    input {
+        margin-top: 10px;
+        margin-bottom: 10px;
+     }
+     input[type='range'] { /* finger sized sliders */
+        display:block;
+        width: 100%;
+     }
+     .button {
+        display: inline-block;
+        padding: 10px;
+        min-width: 80px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        text-align: center;
+        background-color: #177bbd;
+        color: #ffffff;
+     }
+     select {
+        font-size: 1.25em;
+     }
+}

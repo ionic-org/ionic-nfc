@@ -18,6 +18,7 @@ import { NDEFReaderPage } from '../pages/ndef-reader/ndef-reader';
 // providers
 import { NFCProvider } from '../providers/nfc/nfc';
 import { MIMEReaderPage } from '../pages/mime-reader/mime-reader';
+import { MoodSetterPage } from '../pages/mood-setter/mood-setter';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { MIMEReaderPage } from '../pages/mime-reader/mime-reader';
     NFCWriterPage,
     NFCWriterAdvancedPage,
     NDEFReaderPage,
-    MIMEReaderPage
+    MIMEReaderPage,
+    MoodSetterPage
   ],
   imports: [
     BrowserModule,
@@ -43,7 +45,8 @@ import { MIMEReaderPage } from '../pages/mime-reader/mime-reader';
     NFCWriterPage,
     NFCWriterAdvancedPage,
     NDEFReaderPage,
-    MIMEReaderPage
+    MIMEReaderPage,
+    MoodSetterPage
   ],
   providers: [
     StatusBar,

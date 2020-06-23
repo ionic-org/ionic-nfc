@@ -5,6 +5,7 @@ import { NFCWriterPage } from '../nfc-writer/nfc-writer';
 import { NFCWriterAdvancedPage } from '../nfc-writer-advanced/nfc-writer-advanced';
 import { NDEFReaderPage } from '../ndef-reader/ndef-reader';
 import { MIMEReaderPage } from '../mime-reader/mime-reader';
+import { MoodSetterPage } from '../mood-setter/mood-setter';
 
 @Component({
   selector: 'page-home',
@@ -49,5 +50,9 @@ export class HomePage {
       default:
         break;
     }
+  }
+
+  clickMoodSetter() {
+    this.navCtrl.push(MoodSetterPage)
   }
 }

@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>mood-setter</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <div class="app">
+    <div id="tagMode">
+      <h3 id="modeButton" class="button">Change Mode</h3>
+      <span id="modeValue"></span><br />
+      <span id="tagModeMessage"></span>
+    </div>
+
+    <div id="lightControl">
+      Light Location:
+      <select id="lightNumber">
+        <option value="1">No Lights Found</option>
+        <option value="2">No Lights Found</option>
+        <option value="3">No Lights Found</option>
+      </select><br />
+      <label for="lightOn">On:</label>
+      <input type="checkbox" id="lightOn"><br />
+      Brightness: <input type="range" id="bri" min="0" max="254">
+      Hue: <input type="range" id="hue" min="0" max="65535">
+      Saturation: <input type="range" id="sat" min="0" max="254">
+    </div>
+
+    <div id="songPicker">
+      Song:
+      <div>
+        <select id="songs">
+          <option>Loading Songs</option>
+        </select>
+      </div>
+      <div>
+        <h2 id="playButton" class="button">Play</h2>
+        <h2 id="stopButton" class="button">Stop</h2>
+      </div>
+    </div>
+
+    <div id="messageDiv">No message</div>
+  </div>
+</ion-content>
