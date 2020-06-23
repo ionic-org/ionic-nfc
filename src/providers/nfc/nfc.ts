@@ -9,12 +9,14 @@ export class NFCProvider {
   TNF_EXTERNAL_TYPE: number;
   RTD_TEXT: number[];
   RTD_URI: number[];
+  RTD_SMART_POSTER: number[];
 
   constructor(public nfc: NFC, public ndef: Ndef) {
     this.TNF_WELL_KNOWN = this.ndef.TNF_WELL_KNOWN;
     this.TNF_EXTERNAL_TYPE = this.ndef.TNF_EXTERNAL_TYPE;
     this.RTD_TEXT = this.ndef.RTD_TEXT;
     this.RTD_URI = this.ndef.RTD_URI;
+    this.RTD_SMART_POSTER = this.ndef.RTD_SMART_POSTER;
   }
 
   /** 发现标签监听器
@@ -50,30 +52,35 @@ export class NFCProvider {
    * 然而，你无法为不同的类型设置两个MIME类型的监听器。
    */
   addMimeTypeListener(mimeType: string, onSuccess?: Function, onFailure?: Function): Observable<any> {
-    return this.nfc.addMimeTypeListener(mimeType,onSuccess,onFailure);
+    return this.nfc.addMimeTypeListener(mimeType, onSuccess, onFailure);
   }
 
+  /**
+   * Writes an NdefMessage(array of ndef records) to a NFC tag.
+   */
   write(message: any[]): Promise<any> {
     return this.nfc.write(message);
   }
 
   /**
-   * Convert byte array to hex string
-   *
-   * @param bytes {number[]}
-   * @returns {string}
+   * Convert byte array to string
    */
-  bytesToHexString(bytes: number[]): string {
-    return this.nfc.bytesToHexString(bytes);
+  bytesToString(bytes: number[]): string {
+    return this.nfc.bytesToString(bytes);
   }
 
   /**
    * Convert string to byte array.
-   * @param str {string}
-   * @returns {number[]}
    */
   stringToBytes(str: string): number[] {
     return this.nfc.stringToBytes(str);
+  }
+
+  /**
+   * Convert byte array to hex string
+   */
+  bytesToHexString(bytes: number[]): string {
+    return this.nfc.bytesToHexString(bytes);
   }
 
   /**
@@ -154,5 +161,9 @@ export class NFCProvider {
    */
   emptyRecord(): NdefRecord {
     return this.ndef.emptyRecord();
+  }
+
+  decodeMessage(bytes: any): any {
+    return this.ndef.decodeMessage(bytes);
   }
 }
