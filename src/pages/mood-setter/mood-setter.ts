@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
+import { DirectoryEntry } from '@ionic-native/file';
+import { MediaObject, MEDIA_ERROR, MEDIA_STATUS } from '@ionic-native/media';
+import { FileProvider } from '../../providers/file';
+import { MediaProvider } from '../../providers/media';
 import { NFCProvider } from '../../providers/nfc';
 declare let $;
-declare let Media;
 
 @Component({
   selector: 'page-mood-setter',
@@ -21,13 +24,13 @@ export class MoodSetterPage {
     mode: 'write',                 // the tag read/write mode
     mimeType: 'text/hue',          // the NFC record MIME Type
     musicPath: 'file:///sdcard/myMusic/',   // path to your music
-    songPlaying: null,             // media handle for the current song playing
     songTitle: null,               // title of the song
     musicState: 0,                 // state of the song: playing stopped, etc.
     songUri: null
   }
 
-  win: any = window;
+  songPlaying: MediaObject = null;
+
   nav: any = navigator
 
   modeButton = document.getElementById('modeButton');
@@ -46,14 +49,15 @@ export class MoodSetterPage {
   messageDiv = document.getElementById('messageDiv');
 
   constructor(
-    public platform: Platform,
-    public navCtrl: NavController,
-    public navParams: NavParams,
-    public nfcProvider: NFCProvider) {
+    private platform: Platform,
+    private navCtrl: NavController,
+    private navParams: NavParams,
+    private nfcProvider: NFCProvider,
+    private mediaProvider: MediaProvider,
+    private fileProvider: FileProvider) {
   }
 
   ionViewDidLoad() {
-    this.win = window;
     this.nav = navigator;
 
     this.modeButton = document.getElementById('modeButton');
@@ -151,13 +155,13 @@ export class MoodSetterPage {
   }
 
   onPause = () => {
-    if (this.app.musicState === Media.MEDIA_RUNNING) {
+    if (this.app.musicState === this.mediaProvider.MEDIA_RUNNING) {
       this.pauseAudio();
     }
   }
 
   onResume = () => {
-    if (this.app.musicState === Media.MEDIA_PAUSED) {
+    if (this.app.musicState === this.mediaProvider.MEDIA_PAUSED) {
       this.startAudio();
     }
   }
@@ -414,8 +418,7 @@ export class MoodSetterPage {
   }
 
   getSongs = () => {
-    // look for the music directory:
-    this.win.resolveLocalFileSystemURI(this.app.musicPath, (directoryEntry) => {
+    this.fileProvider.resolveLocalFilesystemUrl(this.app.musicPath).then((directoryEntry: DirectoryEntry) => {
       let directoryReader = directoryEntry.createReader();
       directoryReader.readEntries((files) => {
         if (files.length > 0) {
@@ -443,12 +446,7 @@ export class MoodSetterPage {
         }
 
         this.onSongChange();        // update the current song
-      }, (error) => {
-        alert("Error: " + JSON.stringify(error));
-      });
-    }, (error) => {
-      this.nav.notification.alert("Music directory " + this.app.musicPath +
-        " does not exist", {}, "Music Directory");
+      })
     });
   }
 
@@ -462,7 +460,7 @@ export class MoodSetterPage {
 
     if (uri !== this.app.songUri) {
       this.stopAudio();            // stop whatever is playing
-      this.app.songPlaying = null;     // clear the media object
+      this.songPlaying = null;     // clear the media object
       this.app.musicState = 0;         // clear the music state
       this.app.songUri = uri;          // saves the uri of the song
       // uses the filename for a title 
@@ -474,36 +472,39 @@ export class MoodSetterPage {
   toggleAudio = (event) => {
     switch (this.app.musicState) {
       case undefined:             // if playback is undefined
-      case Media.MEDIA_NONE:      // or if no media playing
+      case this.mediaProvider.MEDIA_NONE:      // or if no media playing
         this.startAudio();        // start playback
         break;
-      case Media.MEDIA_STARTING:  // if media is starting
+      case this.mediaProvider.MEDIA_STARTING:  // if media is starting
         // state = "music starting";// no real change
         break;
-      case Media.MEDIA_RUNNING:   // if playback is running
+      case this.mediaProvider.MEDIA_RUNNING:   // if playback is running
         this.pauseAudio();        // pause it
         break;
-      case Media.MEDIA_PAUSED:    // if playback is paused
-      case Media.MEDIA_STOPPED:   // or stopped
+      case this.mediaProvider.MEDIA_PAUSED:    // if playback is paused
+      case this.mediaProvider.MEDIA_STOPPED:   // or stopped
         this.playAudio();         // resume playback
         break;
     }
   }
 
   startAudio = () => {
-    let success = false;
-
     // attempt to instantiate a song:
-    if (this.app.songPlaying === null) {
+    if (this.songPlaying === null) {
       // Create Media object from songUri
       if (this.app.songUri) {
 
-        this.app.songPlaying = new Media(
-          this.app.songUri,      // filepath of song to play
-          this.audioSuccess, // success callback
-          this.audioError,   // error callback
-          this.audioStatus   // update the status callback
-        );
+        this.songPlaying = this.mediaProvider.create(this.app.songUri, (success: any) => {
+          console.log("Audio success");
+        }, (error: MEDIA_ERROR) => {
+          // Without timeout message is overwritten by "Currently Playing: ..."
+          setTimeout(function () {
+            this.display("Unable to play song.");
+          }, 300);
+        }, (status: MEDIA_STATUS) => {
+          this.app.musicState = status;
+        });
+
       } else {
         this.nav.notification.alert("Pick a song!");
       }
@@ -513,25 +514,9 @@ export class MoodSetterPage {
     this.playAudio();
   }
 
-  audioSuccess = () => {
-    console.log("Audio success");
-  }
-
-  audioError = (error) => {
-
-    // Without timeout message is overwritten by "Currently Playing: ..."
-    setTimeout(function () {
-      this.display("Unable to play song.");
-    }, 300);
-  }
-
-  audioStatus = (status) => {
-    this.app.musicState = status;
-  }
-
   playAudio = () => {
-    if (this.app.songPlaying) {             // if there's current playback
-      this.app.songPlaying.play();         // play
+    if (this.songPlaying) {             // if there's current playback
+      this.songPlaying.play();         // play
       this.playButton.innerHTML = "Pause"; // update the play/pause button
 
       // clear the message DIV and display song name and status:
@@ -541,8 +526,8 @@ export class MoodSetterPage {
   }
 
   pauseAudio = () => {
-    if (this.app.songPlaying) {             // if there's current playback
-      this.app.songPlaying.pause();        // pause
+    if (this.songPlaying) {             // if there's current playback
+      this.songPlaying.pause();        // pause
       this.playButton.innerHTML = "Play";  // update the play/pause button
 
       // clear the message DIV and display song name and status:
@@ -552,8 +537,8 @@ export class MoodSetterPage {
   }
 
   stopAudio = () => {
-    if (this.app.songPlaying) {            // if there's current playback
-      this.app.songPlaying.stop();         // stop
+    if (this.songPlaying) {            // if there's current playback
+      this.songPlaying.stop();         // stop
       this.playButton.innerHTML = "Play";  // update the play/pause button
 
       // clear the message DIV and display song name and status:
@@ -578,17 +563,10 @@ export class MoodSetterPage {
 
         content = this.nfcProvider.ndef.uriHelper.decodePayload(record.payload);
 
-        // make sure the song exists
-        this.win.resolveLocalFileSystemURI(content,
-          function () {
-            this.setSong(content);
-            this.startAudio();
-          },
-          function () {
-            this.nav.notification.alert("Can't find " + content,
-              {}, "Missing Song");
-          }
-        );
+        this.fileProvider.resolveLocalFilesystemUrl(content).then(() => {
+          this.setSong(content);
+          this.startAudio();
+        })
       }
 
       // if you've got a hue JSON object, set the lights:
