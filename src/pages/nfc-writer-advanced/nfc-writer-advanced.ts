@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
-import { NFCProvider } from '../../providers/nfc/nfc';
 import { NdefRecord } from '@ionic-native/nfc';
+import { NFCProvider } from '../../providers/nfc';
 
 @Component({
   selector: 'page-nfc-writer-advanced',

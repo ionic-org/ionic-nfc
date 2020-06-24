@@ -5,8 +5,13 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 // ionic-native
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { File } from '@ionic-native/file';
+import { Media } from '@ionic-native/media';
 import { NFC, Ndef } from '@ionic-native/nfc';
-
+// providers
+import { FileProvider } from '../providers/file';
+import { MediaProvider } from '../providers/media';
+import { NFCProvider } from '../providers//nfc';
 // pages
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -15,8 +20,6 @@ import { NFCReaderPage } from '../pages/nfc-reader/nfc-reader';
 import { NFCWriterPage } from '../pages/nfc-writer/nfc-writer';
 import { NFCWriterAdvancedPage } from '../pages/nfc-writer-advanced/nfc-writer-advanced';
 import { NDEFReaderPage } from '../pages/ndef-reader/ndef-reader';
-// providers
-import { NFCProvider } from '../providers/nfc/nfc';
 import { MIMEReaderPage } from '../pages/mime-reader/mime-reader';
 import { MoodSetterPage } from '../pages/mood-setter/mood-setter';
 
@@ -51,9 +54,13 @@ import { MoodSetterPage } from '../pages/mood-setter/mood-setter';
   providers: [
     StatusBar,
     SplashScreen,
+    File,
+    Media,
     NFC,
     Ndef,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
+    FileProvider,
+    MediaProvider,
     NFCProvider
   ]
 })

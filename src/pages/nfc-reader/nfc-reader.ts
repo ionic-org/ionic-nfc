@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
-import { NFCProvider } from '../../providers/nfc/nfc';
-import { Subscription } from 'rxjs';
+import { NFCProvider } from '../../providers/nfc';
 
 @Component({
   selector: 'page-nfc-reader',
